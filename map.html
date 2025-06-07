@@ -36,29 +36,33 @@
 
     #container {
       width: 100%;
-      height: calc(100% - 72px - 72px); /* 减去顶部按钮 + logo 高度 */
+      height: calc(100% - 72px - 72px); /* 减去顶部按钮 + logo 区域高度 */
     }
 
     .footer {
       display: flex;
-      justify-content: space-between;
       align-items: center;
       padding: 6px 0;
       background-color: #ffffff;
       box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
     }
 
-    .footer img {
-      width: 40%;
-      height: auto;
-    }
-
     .footer .spacer-left {
       width: 6%;
     }
 
+    .footer .logo-sms {
+      width: 30%;
+      height: auto;
+    }
+
     .footer .spacer-middle {
       width: 8%;
+    }
+
+    .footer .logo-ust {
+      width: 50%;
+      height: auto;
     }
 
     .footer .spacer-right {
@@ -79,12 +83,12 @@
   <!-- ✅ 地图区域 -->
   <div id="container"></div>
 
-  <!-- ✅ 底部 logo 横排 -->
+  <!-- ✅ 底部 logo 图片区域 -->
   <div class="footer">
     <div class="spacer-left"></div>
-    <img src="https://sms-lab.github.io/map-viewer/assets/SMS-logo-03.png" alt="SMS" />
+    <img src="https://sms-lab.github.io/map-viewer/assets/SMS-logo-03.png" alt="SMS" class="logo-sms" />
     <div class="spacer-middle"></div>
-    <img src="https://sms-lab.github.io/map-viewer/assets/UST-GZ_4C_L4.png" alt="UST-GZ" />
+    <img src="https://sms-lab.github.io/map-viewer/assets/UST-GZ_4C_L4.png" alt="UST-GZ" class="logo-ust" />
     <div class="spacer-right"></div>
   </div>
 
@@ -123,7 +127,6 @@
         });
       }
 
-      // 回传坐标
       const point = { lng, lat };
       if (window.WeixinJSBridge) {
         window.WeixinJSBridge.invoke('postMessage', point);

@@ -17,6 +17,7 @@
 
     .topbar {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       padding: 10px;
@@ -27,7 +28,7 @@
 
     #container {
       width: 100%;
-      height: calc(100% - 72px - 36px); /* 地图减去顶部信息栏高度 */
+      height: calc(100% - 72px - 70px); /* 顶部+底部高度 */
     }
 
     .footer {
@@ -44,7 +45,7 @@
     .footer .logo-sms {
       width: 32%;
       height: auto;
-      margin-left: 8%;
+      margin-right: 8%;
     }
 
     .footer .logo-ust {
@@ -57,21 +58,19 @@
 </head>
 <body>
 
-  <!-- ✅ 顶部坐标展示栏 -->
-  <div class="topbar" id="coordDisplay">等待接收小程序位置坐标...</div>
-  <div class="topbar" id="dataDisplay">等待接收广播数据...</div>
+  <div class="topbar">
+    <div id="coordDisplay">等待接收小程序位置坐标...</div>
+    <div id="statusDisplay" style="margin-top: 6px; font-size: 13px;"></div>
+  </div>
 
-  <!-- ✅ 地图容器 -->
   <div id="container"></div>
 
-  <!-- ✅ 底部 logo -->
   <div class="footer">
-    <img src="https://sms-lab.github.io/map-viewer/assets/UST-GZ_4C_L4.png" alt="UST-GZ" class="logo-ust" />
     <img src="https://sms-lab.github.io/map-viewer/assets/SMS-logo-03.png" alt="SMS" class="logo-sms" />
+    <img src="https://sms-lab.github.io/map-viewer/assets/UST-GZ_4C_L4.png" alt="UST-GZ" class="logo-ust" />
   </div>
 
   <script>
-    // ✅ 获取 URL 参数
     function getQueryParam(key) {
       const params = new URLSearchParams(window.location.search);
       return params.get(key);
@@ -79,10 +78,10 @@
 
     const lng = parseFloat(getQueryParam("lng"));
     const lat = parseFloat(getQueryParam("lat"));
-    const data = decodeURIComponent(getQueryParam("data") || "");
+    const detected = getQueryParam("detected");
 
     const coordText = document.getElementById("coordDisplay");
-    const dataText = document.getElementById("dataDisplay");
+    const statusText = document.getElementById("statusDisplay");
 
     const map = new AMap.Map('container', {
       resizeEnable: true,
@@ -96,7 +95,7 @@
     });
 
     if (lng && lat) {
-      new AMap.Marker({
+      const marker = new AMap.Marker({
         position: [lng, lat],
         map: map,
         title: "Current Location"
@@ -106,10 +105,11 @@
       coordText.textContent = "未获取到坐标，默认居中";
     }
 
-    if (data) {
-      dataText.textContent = `广播包数据（十进制）: ${data}`;
+    if (detected === "1") {
+      statusText.textContent = "✅ 已成功检测到目标设备";
+      statusText.style.color = "#00ff88";
     } else {
-      dataText.textContent = "未获取到广播包数据";
+      statusText.textContent = "未检测到目标设备";
     }
   </script>
 </body>

@@ -17,17 +17,17 @@
       justify-content: center;
       align-items: center;
       background-color: #007aff;
-      padding: 8px 0;
+      padding: 12px 0;
     }
 
     .header img {
-      height: 36px;
-      margin: 0 12px;
+      height: 60px; /* ✅ 放大图片 */
+      margin: 0 16px;
     }
 
     #container {
       width: 100%;
-      height: calc(100% - 120px); /* 顶部+底部预留高度 */
+      height: calc(100% - 140px); /* 预留顶部+底部空间 */
     }
 
     .footer {
@@ -63,16 +63,16 @@
 </head>
 <body>
 
-  <!-- ✅ 顶部 logo 横排 -->
+  <!-- ✅ 顶部 logo 放大 -->
   <div class="header">
     <img src="assets/SMS-logo-03.png" alt="SMS-Lab Logo" />
     <img src="assets/UST-GZ_4C_L4.png" alt="UST-GZ Logo" />
   </div>
 
-  <!-- ✅ 高德地图容器 -->
+  <!-- ✅ 高德地图区域 -->
   <div id="container"></div>
 
-  <!-- ✅ 底部坐标与按钮 -->
+  <!-- ✅ 坐标显示与按钮 -->
   <div class="footer">
     <div class="coords" id="coordDisplay">Please tap on the map</div>
     <button class="btn" id="confirmBtn" disabled>Confirm Location</button>
@@ -92,12 +92,12 @@
       center: [113.482026, 22.887308]
     });
 
-    AMap.plugin(['AMap.ToolBar', 'AMap.Scale'], function() {
+    AMap.plugin(['AMap.ToolBar', 'AMap.Scale'], function () {
       map.addControl(new AMap.ToolBar());
       map.addControl(new AMap.Scale());
     });
 
-    map.on('click', function(e) {
+    map.on('click', function (e) {
       selectedLng = e.lnglat.getLng();
       selectedLat = e.lnglat.getLat();
 
@@ -111,11 +111,10 @@
       confirmBtn.disabled = false;
     });
 
-    confirmBtn.addEventListener('click', function() {
+    confirmBtn.addEventListener('click', function () {
       if (selectedLng && selectedLat) {
         const data = { lng: selectedLng, lat: selectedLat };
 
-        // ✅ 向小程序回传
         if (window.WeixinJSBridge) {
           window.WeixinJSBridge.invoke('postMessage', data);
         } else if (window.parent) {

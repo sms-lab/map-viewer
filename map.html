@@ -17,10 +17,22 @@
 
     .topbar {
       display: flex;
-      justify-content: space-around;
+      flex-direction: column;
       align-items: center;
-      padding: 10px;
+      justify-content: center;
       background-color: #007aff;
+      color: white;
+      padding: 10px;
+    }
+
+    .topbar .coords {
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    .topbar .buttons {
+      display: flex;
+      gap: 10px;
     }
 
     .topbar button {
@@ -33,18 +45,9 @@
       cursor: pointer;
     }
 
-    #coord {
-      text-align: center;
-      padding: 10px;
-      font-size: 15px;
-      color: #333;
-      background: #ffffff;
-      border-bottom: 1px solid #ddd;
-    }
-
     #container {
       width: 100%;
-      height: calc(100% - 72px - 72px - 44px); /* topbar + footer + coord */
+      height: calc(100% - 72px - 72px);
     }
 
     .footer {
@@ -60,11 +63,6 @@
       width: 6%;
     }
 
-    .footer .logo-ust {
-      width: 50%;
-      height: auto;
-    }
-
     .footer .spacer-middle {
       width: 8%;
     }
@@ -73,25 +71,30 @@
       width: 32%;
       height: auto;
     }
+
+    .footer .logo-ust {
+      width: 50%;
+      height: auto;
+    }
   </style>
 
   <script src="https://webapi.amap.com/maps?v=1.4.15&key=7c681b657417b538155bec0a6a9f5874&plugin=AMap.Scale,AMap.ToolBar"></script>
 </head>
 <body>
 
-  <!-- 顶部按钮 -->
+  <!-- 顶部区域：按钮 + 坐标提示 -->
   <div class="topbar">
-    <button onclick="sendToMiniProgram('search')">Search</button>
-    <button onclick="sendToMiniProgram('clear')">Clean</button>
+    <div class="buttons">
+      <button onclick="sendToMiniProgram('search')">Search</button>
+      <button onclick="sendToMiniProgram('clear')">Clean</button>
+    </div>
+    <div class="coords" id="coordsDisplay">等待接收小程序位置坐标...</div>
   </div>
 
-  <!-- ✅ 坐标显示区域 -->
-  <div id="coord">等待接收小程序位置坐标...</div>
-
-  <!-- 地图容器 -->
+  <!-- 地图 -->
   <div id="container"></div>
 
-  <!-- 底部 Logo -->
+  <!-- 底部 logo -->
   <div class="footer">
     <div class="spacer-left"></div>
     <img src="https://sms-lab.github.io/map-viewer/assets/SMS-logo-03.png" alt="SMS" class="logo-sms" />
@@ -123,32 +126,39 @@
 
     let marker = null;
 
-    // ✅ 接收小程序传来的经纬度并显示
+    function updateMapWithCoords(lng, lat) {
+      document.getElementById('coordsDisplay').innerText = `Lng: ${lng.toFixed(5)}, Lat: ${lat.toFixed(5)}`;
+      if (marker) {
+        marker.setPosition([lng, lat]);
+      } else {
+        marker = new AMap.Marker({
+          position: [lng, lat],
+          map: map,
+          title: "当前定位"
+        });
+      }
+      map.setCenter([lng, lat]);
+    }
+
+    // ✅ 模拟小程序传递数据（调试用）
+    setTimeout(() => {
+      const fakeData = {
+        action: 'setLocation',
+        lng: 113.48345,
+        lat: 22.88611
+      };
+      updateMapWithCoords(fakeData.lng, fakeData.lat);
+    }, 1000);
+
+    // ✅ 正式监听（上线时解开此段注释）
+    /*
     window.addEventListener("message", function (event) {
       const { data } = event;
       if (data && data.action === 'setLocation' && data.lng && data.lat) {
-        const lng = data.lng;
-        const lat = data.lat;
-
-        // 1. 更新地图中心
-        map.setCenter([lng, lat]);
-
-        // 2. 设置/更新 marker
-        if (marker) {
-          marker.setPosition([lng, lat]);
-        } else {
-          marker = new AMap.Marker({
-            position: [lng, lat],
-            map: map,
-            title: "当前位置"
-          });
-        }
-
-        // 3. ✅ 输出到顶部坐标区域
-        document.getElementById('coord').innerText =
-          `当前坐标：Lng: ${lng.toFixed(6)}, Lat: ${lat.toFixed(6)}`;
+        updateMapWithCoords(data.lng, data.lat);
       }
     });
+    */
   </script>
 </body>
 </html>

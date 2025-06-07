@@ -2,128 +2,80 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>SMS-Lab Map Selector</title>
+  <title>AMap Map with Logos</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
+      background: #f5f5f5;
+      width: 100%;
       height: 100%;
-      background-color: #f8f8f8;
-      font-family: sans-serif;
     }
 
     .header {
       display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: #007aff;
-      padding: 12px 0;
+      width: 100%;
+      background-color: #ffffff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
     .header img {
-      height: 200px; /* ✅ 放大图片 */
-      margin: 0 16px;
+      width: 50%;       /* ✅ 每张图占屏幕一半宽度 */
+      height: auto;     /* ✅ 高度自适应比例缩放 */
+      display: block;
     }
 
     #container {
       width: 100%;
-      height: calc(100% - 140px); /* 预留顶部+底部空间 */
-    }
-
-    .footer {
-      height: 60px;
-      padding: 10px;
-      text-align: center;
-      background-color: #f0f0f0;
-    }
-
-    .coords {
-      font-size: 14px;
-      color: #555;
-      margin-bottom: 8px;
-    }
-
-    .btn {
-      background-color: #007aff;
-      color: white;
-      border: none;
-      padding: 8px 20px;
-      border-radius: 4px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    .btn:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
+      height: calc(100vh - 80px);  /* ✅ 减去 logo 区域高度 */
     }
   </style>
 
+  <!-- ✅ 替换为你的 AMap Key -->
   <script src="https://webapi.amap.com/maps?v=1.4.15&key=7c681b657417b538155bec0a6a9f5874&plugin=AMap.Scale,AMap.ToolBar"></script>
 </head>
+
 <body>
 
-  <!-- ✅ 顶部 logo 放大 -->
+  <!-- ✅ 顶部双 logo 图 -->
   <div class="header">
-    <img src="assets/SMS-logo-03.png" alt="SMS-Lab Logo" />
-    <img src="assets/UST-GZ_4C_L4.png" alt="UST-GZ Logo" />
+    <img src="https://sms-lab.github.io/map-viewer/assets/SMS-logo-03.png" alt="SMS Logo" />
+    <img src="https://sms-lab.github.io/map-viewer/assets/UST-GZ_4C_L4.png" alt="UST-GZ Logo" />
   </div>
 
-  <!-- ✅ 高德地图区域 -->
+  <!-- ✅ 地图容器 -->
   <div id="container"></div>
 
-  <!-- ✅ 坐标显示与按钮 -->
-  <div class="footer">
-    <div class="coords" id="coordDisplay">Please tap on the map</div>
-    <button class="btn" id="confirmBtn" disabled>Confirm Location</button>
-  </div>
-
+  <!-- ✅ 地图 JS -->
   <script>
-    let selectedLng = null;
-    let selectedLat = null;
-    let marker = null;
-
-    const coordDisplay = document.getElementById('coordDisplay');
-    const confirmBtn = document.getElementById('confirmBtn');
-
     const map = new AMap.Map('container', {
       resizeEnable: true,
       zoom: 16,
       center: [113.482026, 22.887308]
     });
 
-    AMap.plugin(['AMap.ToolBar', 'AMap.Scale'], function () {
+    AMap.plugin(['AMap.ToolBar', 'AMap.Scale'], function() {
       map.addControl(new AMap.ToolBar());
       map.addControl(new AMap.Scale());
     });
 
+    let marker = null;
     map.on('click', function (e) {
-      selectedLng = e.lnglat.getLng();
-      selectedLat = e.lnglat.getLat();
+      const lng = e.lnglat.getLng();
+      const lat = e.lnglat.getLat();
 
-      if (!marker) {
-        marker = new AMap.Marker({ map });
+      if (marker) {
+        marker.setPosition([lng, lat]);
+      } else {
+        marker = new AMap.Marker({
+          position: [lng, lat],
+          map: map,
+          title: "Selected Location"
+        });
       }
 
-      marker.setPosition([selectedLng, selectedLat]);
-
-      coordDisplay.textContent = `Selected: ${selectedLng.toFixed(6)}, ${selectedLat.toFixed(6)}`;
-      confirmBtn.disabled = false;
-    });
-
-    confirmBtn.addEventListener('click', function () {
-      if (selectedLng && selectedLat) {
-        const data = { lng: selectedLng, lat: selectedLat };
-
-        if (window.WeixinJSBridge) {
-          window.WeixinJSBridge.invoke('postMessage', data);
-        } else if (window.parent) {
-          window.parent.postMessage(data, '*');
-        }
-
-        confirmBtn.textContent = 'Confirmed';
-        confirmBtn.disabled = true;
-      }
+      // ✅ 向小程序回传数据
+      window.parent.postMessage([{ lng, lat }], '*');
     });
   </script>
 </body>

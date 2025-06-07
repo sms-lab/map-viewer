@@ -2,33 +2,75 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>AMap in WebView</title>
+  <title>SMS-Lab Map Selector</title>
   <style>
-    html, body {
+    body {
       margin: 0;
-      padding: 0;
-      height: 100%;  /* ✅ 允许容器高度继承 */
-      background: #f0f0f0;
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+    }
+
+    .header {
+      background-color: #007aff;
+      color: white;
+      padding: 12px 16px;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
     }
 
     #container {
       width: 100%;
-      height: 100%;  /* ✅ 关键：让地图铺满 iframe 或 web-view */
+      height: 420px;
     }
 
-    /* placeholder 保留可选提示信息（也可去掉） */
-    .placeholder {
-      display: none;
+    .footer {
+      padding: 16px;
+      text-align: center;
+    }
+
+    .coords {
+      font-size: 14px;
+      color: #555;
+      margin: 8px 0;
+    }
+
+    .btn {
+      background-color: #007aff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
     }
   </style>
-
   <script src="https://webapi.amap.com/maps?v=1.4.15&key=7c681b657417b538155bec0a6a9f5874&plugin=AMap.Scale,AMap.ToolBar"></script>
 </head>
 <body>
 
+  <div class="header">SMS-Lab · Select Location</div>
+
   <div id="container"></div>
 
+  <div class="footer">
+    <div class="coords" id="coordDisplay">Please tap on the map</div>
+    <button class="btn" id="confirmBtn" disabled>Confirm Location</button>
+  </div>
+
   <script>
+    let selectedLng = null;
+    let selectedLat = null;
+    let marker = null;
+
+    const coordDisplay = document.getElementById('coordDisplay');
+    const confirmBtn = document.getElementById('confirmBtn');
+
     const map = new AMap.Map('container', {
       resizeEnable: true,
       zoom: 16,
@@ -40,23 +82,39 @@
       map.addControl(new AMap.Scale());
     });
 
-    let marker = null;
     map.on('click', function(e) {
-      const lng = e.lnglat.getLng();
-      const lat = e.lnglat.getLat();
+      selectedLng = e.lnglat.getLng();
+      selectedLat = e.lnglat.getLat();
 
-      if (marker) {
-        marker.setPosition([lng, lat]);
-      } else {
+      if (!marker) {
         marker = new AMap.Marker({
-          position: [lng, lat],
-          map: map,
-          title: "Selected Location"
+          map: map
         });
       }
 
-      // ✅ 向小程序发送经纬度消息
-      window.parent.postMessage([{ lng, lat }], '*');
+      marker.setPosition([selectedLng, selectedLat]);
+
+      coordDisplay.textContent = `Selected: ${selectedLng.toFixed(6)}, ${selectedLat.toFixed(6)}`;
+      confirmBtn.disabled = false;
+    });
+
+    confirmBtn.addEventListener('click', function() {
+      if (selectedLng && selectedLat) {
+        const data = {
+          lng: selectedLng,
+          lat: selectedLat
+        };
+
+        // ✅ 给小程序回传数据
+        if (window.WeixinJSBridge) {
+          window.WeixinJSBridge.invoke('postMessage', data);
+        } else if (window.parent) {
+          window.parent.postMessage(data, '*');
+        }
+
+        confirmBtn.textContent = 'Confirmed';
+        confirmBtn.disabled = true;
+      }
     });
   </script>
 </body>

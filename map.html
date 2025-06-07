@@ -17,63 +17,38 @@
 
     .topbar {
       display: flex;
-      flex-direction: column;
-      align-items: center;
       justify-content: center;
+      align-items: center;
+      padding: 10px;
       background-color: #007aff;
       color: white;
-      padding: 10px;
-    }
-
-    .topbar .coords {
       font-size: 14px;
-      margin-top: 6px;
-    }
-
-    .topbar .buttons {
-      display: flex;
-      gap: 10px;
-    }
-
-    .topbar button {
-      background-color: white;
-      color: #007aff;
-      border: none;
-      padding: 8px 16px;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
     }
 
     #container {
       width: 100%;
-      height: calc(100% - 72px - 72px); /* 按钮高度 + logo高度 */
+      height: calc(100% - 72px); /* 顶部 72px，高度占位 */
     }
 
     .footer {
+      position: absolute;
+      bottom: 0;
       display: flex;
       align-items: center;
       padding: 6px 0;
       background-color: #ffffff;
-      box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+      width: 100%;
+      justify-content: center;
     }
 
-    .footer .spacer-left,
-    .footer .spacer-right {
-      width: 6%;
-    }
-
-    .footer .spacer-middle {
-      width: 8%;
+    .footer .logo-sms {
+      width: 32%;
+      height: auto;
+      margin-right: 8%;
     }
 
     .footer .logo-ust {
       width: 50%;
-      height: auto;
-    }
-
-    .footer .logo-sms {
-      width: 34%;
       height: auto;
     }
   </style>
@@ -82,41 +57,31 @@
 </head>
 <body>
 
-  <!-- 顶部区域：按钮 + 经纬度 -->
-  <div class="topbar">
-    <div class="buttons">
-      <button onclick="sendToMiniProgram('search')">Search</button>
-      <button onclick="sendToMiniProgram('clear')">Clean</button>
-    </div>
-    <div class="coords" id="coordsDisplay">等待接收小程序位置坐标...</div>
-  </div>
+  <div class="topbar" id="coordDisplay">等待接收小程序位置坐标...</div>
 
-  <!-- 地图显示区域 -->
   <div id="container"></div>
 
-  <!-- 底部 logo 区域（已对调位置） -->
   <div class="footer">
-    <div class="spacer-left"></div>
-    <img src="https://sms-lab.github.io/map-viewer/assets/UST-GZ_4C_L4.png" alt="UST-GZ" class="logo-ust" />
-    <div class="spacer-middle"></div>
     <img src="https://sms-lab.github.io/map-viewer/assets/SMS-logo-03.png" alt="SMS" class="logo-sms" />
-    <div class="spacer-right"></div>
+    <img src="https://sms-lab.github.io/map-viewer/assets/UST-GZ_4C_L4.png" alt="UST-GZ" class="logo-ust" />
   </div>
 
   <script>
-    function sendToMiniProgram(action) {
-      const data = { action };
-      if (window.WeixinJSBridge) {
-        window.WeixinJSBridge.invoke('postMessage', data);
-      } else if (window.parent) {
-        window.parent.postMessage(data, '*');
-      }
+    // ✅ 获取 URL 参数
+    function getQueryParam(key) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(key);
     }
+
+    const lng = parseFloat(getQueryParam("lng"));
+    const lat = parseFloat(getQueryParam("lat"));
+
+    const coordText = document.getElementById("coordDisplay");
 
     const map = new AMap.Map('container', {
       resizeEnable: true,
       zoom: 16,
-      center: [113.482026, 22.887308]
+      center: (lng && lat) ? [lng, lat] : [113.482026, 22.887308]
     });
 
     AMap.plugin(['AMap.ToolBar', 'AMap.Scale'], function () {
@@ -124,41 +89,16 @@
       map.addControl(new AMap.Scale());
     });
 
-    let marker = null;
-
-    function updateMapWithCoords(lng, lat) {
-      document.getElementById('coordsDisplay').innerText = `Lng: ${lng.toFixed(5)}, Lat: ${lat.toFixed(5)}`;
-      if (marker) {
-        marker.setPosition([lng, lat]);
-      } else {
-        marker = new AMap.Marker({
-          position: [lng, lat],
-          map: map,
-          title: "当前定位"
-        });
-      }
-      map.setCenter([lng, lat]);
+    if (lng && lat) {
+      const marker = new AMap.Marker({
+        position: [lng, lat],
+        map: map,
+        title: "Current Location"
+      });
+      coordText.textContent = `Lng: ${lng.toFixed(5)}, Lat: ${lat.toFixed(5)}`;
+    } else {
+      coordText.textContent = "未获取到坐标，默认居中";
     }
-
-    // ✅ 模拟小程序数据传输：用于调试用（可删除）
-    setTimeout(() => {
-      const fakeData = {
-        action: 'setLocation',
-        lng: 113.48345,
-        lat: 22.88611
-      };
-      updateMapWithCoords(fakeData.lng, fakeData.lat);
-    }, 1000);
-
-    // ✅ 正式监听（上线时取消注释）
-    /*
-    window.addEventListener("message", function (event) {
-      const { data } = event;
-      if (data && data.action === 'setLocation' && data.lng && data.lat) {
-        updateMapWithCoords(data.lng, data.lat);
-      }
-    });
-    */
   </script>
 </body>
 </html>

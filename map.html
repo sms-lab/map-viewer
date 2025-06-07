@@ -61,7 +61,7 @@
     }
 
     .footer .logo-sms {
-      width: 32%; /* ✅ 增加 SMS 图宽度 */
+      width: 32%;
       height: auto;
     }
   </style>
@@ -110,6 +110,8 @@
     });
 
     let marker = null;
+
+    // ✅ 监听点击地图返回位置
     map.on('click', function (e) {
       const lng = e.lnglat.getLng();
       const lat = e.lnglat.getLat();
@@ -128,6 +130,25 @@
         window.WeixinJSBridge.invoke('postMessage', point);
       } else if (window.parent) {
         window.parent.postMessage(point, '*');
+      }
+    });
+
+    // ✅ 接收来自小程序的定位消息并居中显示
+    window.addEventListener("message", function (event) {
+      const { data } = event;
+      if (data && data.action === 'setLocation' && data.lng && data.lat) {
+        const lng = data.lng;
+        const lat = data.lat;
+        map.setCenter([lng, lat]);
+
+        if (marker) {
+          marker.setPosition([lng, lat]);
+        } else {
+          marker = new AMap.Marker({
+            position: [lng, lat],
+            map: map
+          });
+        }
       }
     });
   </script>

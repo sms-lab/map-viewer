@@ -119,7 +119,7 @@
 
     const map = new AMap.Map('container', {
       resizeEnable: true,
-      zoom: 16,
+      zoom: 14, /*3: world-level, 10: city-level, 16: street-level */
       center: (lng && lat) ? [lng, lat] : [113.482026, 22.887308]
     });
 

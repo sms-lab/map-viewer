@@ -27,7 +27,7 @@
 
     #container {
       width: 100%;
-      height: calc(100% - 72px); /* 顶部 72px，高度占位 */
+      height: calc(100% - 72px - 36px); /* 地图减去顶部信息栏高度 */
     }
 
     .footer {
@@ -44,7 +44,7 @@
     .footer .logo-sms {
       width: 32%;
       height: auto;
-      margin-right: 8%;
+      margin-left: 8%;
     }
 
     .footer .logo-ust {
@@ -57,10 +57,14 @@
 </head>
 <body>
 
+  <!-- ✅ 顶部坐标展示栏 -->
   <div class="topbar" id="coordDisplay">等待接收小程序位置坐标...</div>
+  <div class="topbar" id="dataDisplay">等待接收广播数据...</div>
 
+  <!-- ✅ 地图容器 -->
   <div id="container"></div>
 
+  <!-- ✅ 底部 logo -->
   <div class="footer">
     <img src="https://sms-lab.github.io/map-viewer/assets/UST-GZ_4C_L4.png" alt="UST-GZ" class="logo-ust" />
     <img src="https://sms-lab.github.io/map-viewer/assets/SMS-logo-03.png" alt="SMS" class="logo-sms" />
@@ -75,8 +79,10 @@
 
     const lng = parseFloat(getQueryParam("lng"));
     const lat = parseFloat(getQueryParam("lat"));
+    const data = decodeURIComponent(getQueryParam("data") || "");
 
     const coordText = document.getElementById("coordDisplay");
+    const dataText = document.getElementById("dataDisplay");
 
     const map = new AMap.Map('container', {
       resizeEnable: true,
@@ -90,7 +96,7 @@
     });
 
     if (lng && lat) {
-      const marker = new AMap.Marker({
+      new AMap.Marker({
         position: [lng, lat],
         map: map,
         title: "Current Location"
@@ -98,6 +104,12 @@
       coordText.textContent = `Lng: ${lng.toFixed(5)}, Lat: ${lat.toFixed(5)}`;
     } else {
       coordText.textContent = "未获取到坐标，默认居中";
+    }
+
+    if (data) {
+      dataText.textContent = `广播包数据（十进制）: ${data}`;
+    } else {
+      dataText.textContent = "未获取到广播包数据";
     }
   </script>
 </body>

@@ -33,9 +33,18 @@
       cursor: pointer;
     }
 
+    /* ✅ 坐标显示区域 */
+    #coord {
+      text-align: center;
+      padding: 10px;
+      font-size: 15px;
+      color: #333;
+      background: #ffffff;
+    }
+
     #container {
       width: 100%;
-      height: calc(100% - 72px - 72px); /* 顶部按钮 + logo 区域高度 */
+      height: calc(100% - 72px - 72px - 44px); /* 顶部按钮 + logo + 坐标显示区域高度 */
     }
 
     .footer {
@@ -76,10 +85,13 @@
     <button onclick="sendToMiniProgram('clear')">Clean</button>
   </div>
 
+  <!-- ✅ 坐标显示区域 -->
+  <div id="coord">等待接收小程序位置坐标...</div>
+
   <!-- 地图容器 -->
   <div id="container"></div>
 
-  <!-- 底部 Logo（顺序已调换） -->
+  <!-- 底部 Logo -->
   <div class="footer">
     <div class="spacer-left"></div>
     <img src="https://sms-lab.github.io/map-viewer/assets/SMS-logo-03.png" alt="SMS" class="logo-sms" />
@@ -117,8 +129,9 @@
       if (data && data.action === 'setLocation' && data.lng && data.lat) {
         const lng = data.lng;
         const lat = data.lat;
-        map.setCenter([lng, lat]);
 
+        // 更新地图
+        map.setCenter([lng, lat]);
         if (marker) {
           marker.setPosition([lng, lat]);
         } else {
@@ -128,6 +141,10 @@
             title: "当前位置"
           });
         }
+
+        // ✅ 显示坐标信息
+        const coordText = `已接收到定位信息：<br>经度：${lng.toFixed(6)}，纬度：${lat.toFixed(6)}`;
+        document.getElementById('coord').innerHTML = coordText;
       }
     });
   </script>

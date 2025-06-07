@@ -2,51 +2,63 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>AMap Map with Logos</title>
+  <title>SMS-Lab Map Selector</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: #f5f5f5;
       width: 100%;
       height: 100%;
+      overflow: hidden;
+      box-sizing: border-box;
+      background: #f8f8f8;
     }
 
     .header {
       display: flex;
+      align-items: center;
       width: 100%;
       background-color: #ffffff;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 6px 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .header img {
-      width: 50%;       /* ✅ 每张图占屏幕一半宽度 */
-      height: auto;     /* ✅ 高度自适应比例缩放 */
+    .logo {
+      width: 40%;
+      height: auto;
       display: block;
+    }
+
+    .logo.left {
+      margin-left: 6%;
+      margin-right: 4%;  /* 中间 8% 空白一半 */
+    }
+
+    .logo.right {
+      margin-left: 4%;
+      margin-right: 6%;
     }
 
     #container {
       width: 100%;
-      height: calc(100vh - 80px);  /* ✅ 减去 logo 区域高度 */
+      height: calc(100% - 72px);  /* logo 区域高度 */
     }
   </style>
 
-  <!-- ✅ 替换为你的 AMap Key -->
   <script src="https://webapi.amap.com/maps?v=1.4.15&key=7c681b657417b538155bec0a6a9f5874&plugin=AMap.Scale,AMap.ToolBar"></script>
 </head>
-
 <body>
 
-  <!-- ✅ 顶部双 logo 图 -->
+  <!-- ✅ 顶部 logo 图片，两边6%，中间8% -->
   <div class="header">
-    <img src="https://sms-lab.github.io/map-viewer/assets/SMS-logo-03.png" alt="SMS Logo" />
-    <img src="https://sms-lab.github.io/map-viewer/assets/UST-GZ_4C_L4.png" alt="UST-GZ Logo" />
+    <img src="https://sms-lab.github.io/map-viewer/assets/SMS-logo-03.png" alt="SMS" class="logo left" />
+    <img src="https://sms-lab.github.io/map-viewer/assets/UST-GZ_4C_L4.png" alt="UST-GZ" class="logo right" />
   </div>
 
-  <!-- ✅ 地图容器 -->
+  <!-- ✅ 地图区域 -->
   <div id="container"></div>
 
-  <!-- ✅ 地图 JS -->
   <script>
     const map = new AMap.Map('container', {
       resizeEnable: true,
@@ -54,7 +66,7 @@
       center: [113.482026, 22.887308]
     });
 
-    AMap.plugin(['AMap.ToolBar', 'AMap.Scale'], function() {
+    AMap.plugin(['AMap.ToolBar', 'AMap.Scale'], function () {
       map.addControl(new AMap.ToolBar());
       map.addControl(new AMap.Scale());
     });
@@ -69,13 +81,11 @@
       } else {
         marker = new AMap.Marker({
           position: [lng, lat],
-          map: map,
-          title: "Selected Location"
+          map: map
         });
       }
 
-      // ✅ 向小程序回传数据
-      window.parent.postMessage([{ lng, lat }], '*');
+      window.parent.postMessage({ lng, lat }, '*');
     });
   </script>
 </body>

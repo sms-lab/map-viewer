@@ -32,14 +32,16 @@
     }
 
     .footer {
-      position: absolute;
-      bottom: 0;
-      display: flex;
-      align-items: center;
-      padding: 6px 0;
-      background-color: #ffffff;
+      position: fixed;             /* ✅ 固定在页面底部 */
+      bottom: 30px;                /* ✅ 避开高德地图 logo */
+      left: 0;
       width: 100%;
+      z-index: 999;                /* ✅ 确保在地图上层 */
+      display: flex;
       justify-content: center;
+      align-items: center;
+      background-color: rgba(255, 255, 255, 0.85); /* 半透明背景 */
+      padding: 6px 0;
     }
 
     .footer .logo-sms {

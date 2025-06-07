@@ -47,7 +47,7 @@
 
     #container {
       width: 100%;
-      height: calc(100% - 72px - 72px);
+      height: calc(100% - 72px - 72px); /* 按钮高度 + logo高度 */
     }
 
     .footer {
@@ -67,13 +67,13 @@
       width: 8%;
     }
 
-    .footer .logo-sms {
-      width: 32%;
+    .footer .logo-ust {
+      width: 50%;
       height: auto;
     }
 
-    .footer .logo-ust {
-      width: 50%;
+    .footer .logo-sms {
+      width: 32%;
       height: auto;
     }
   </style>
@@ -82,7 +82,7 @@
 </head>
 <body>
 
-  <!-- 顶部区域：按钮 + 坐标提示 -->
+  <!-- 顶部区域：按钮 + 经纬度 -->
   <div class="topbar">
     <div class="buttons">
       <button onclick="sendToMiniProgram('search')">Search</button>
@@ -91,15 +91,15 @@
     <div class="coords" id="coordsDisplay">等待接收小程序位置坐标...</div>
   </div>
 
-  <!-- 地图 -->
+  <!-- 地图显示区域 -->
   <div id="container"></div>
 
-  <!-- 底部 logo -->
+  <!-- 底部 logo 区域（已对调位置） -->
   <div class="footer">
     <div class="spacer-left"></div>
-    <img src="https://sms-lab.github.io/map-viewer/assets/SMS-logo-03.png" alt="SMS" class="logo-sms" />
-    <div class="spacer-middle"></div>
     <img src="https://sms-lab.github.io/map-viewer/assets/UST-GZ_4C_L4.png" alt="UST-GZ" class="logo-ust" />
+    <div class="spacer-middle"></div>
+    <img src="https://sms-lab.github.io/map-viewer/assets/SMS-logo-03.png" alt="SMS" class="logo-sms" />
     <div class="spacer-right"></div>
   </div>
 
@@ -140,7 +140,7 @@
       map.setCenter([lng, lat]);
     }
 
-    // ✅ 模拟小程序传递数据（调试用）
+    // ✅ 模拟小程序数据传输：用于调试用（可删除）
     setTimeout(() => {
       const fakeData = {
         action: 'setLocation',
@@ -150,7 +150,7 @@
       updateMapWithCoords(fakeData.lng, fakeData.lat);
     }, 1000);
 
-    // ✅ 正式监听（上线时解开此段注释）
+    // ✅ 正式监听（上线时取消注释）
     /*
     window.addEventListener("message", function (event) {
       const { data } = event;

@@ -13,36 +13,56 @@
       overflow: hidden;
       box-sizing: border-box;
       background: #f8f8f8;
+      font-family: sans-serif;
     }
 
-    .header {
+    .topbar {
       display: flex;
+      justify-content: space-around;
       align-items: center;
-      width: 100%;
-      background-color: #ffffff;
-      padding: 6px 0;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 10px;
+      background-color: #007aff;
     }
 
-    .logo {
-      width: 40%;
-      height: auto;
-      display: block;
-    }
-
-    .logo.left {
-      margin-left: 6%;
-      margin-right: 4%;  /* 中间 8% 空白一半 */
-    }
-
-    .logo.right {
-      margin-left: 4%;
-      margin-right: 6%;
+    .topbar button {
+      background-color: white;
+      color: #007aff;
+      border: none;
+      padding: 8px 16px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
     }
 
     #container {
       width: 100%;
-      height: calc(100% - 72px);  /* logo 区域高度 */
+      height: calc(100% - 72px - 72px); /* 减去顶部按钮 + logo 高度 */
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      background-color: #ffffff;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+    }
+
+    .footer img {
+      width: 40%;
+      height: auto;
+    }
+
+    .footer .spacer-left {
+      width: 6%;
+    }
+
+    .footer .spacer-middle {
+      width: 8%;
+    }
+
+    .footer .spacer-right {
+      width: 6%;
     }
   </style>
 
@@ -50,16 +70,34 @@
 </head>
 <body>
 
-  <!-- ✅ 顶部 logo 图片，两边6%，中间8% -->
-  <div class="header">
-    <img src="https://sms-lab.github.io/map-viewer/assets/SMS-logo-03.png" alt="SMS" class="logo left" />
-    <img src="https://sms-lab.github.io/map-viewer/assets/UST-GZ_4C_L4.png" alt="UST-GZ" class="logo right" />
+  <!-- ✅ 顶部按钮区域 -->
+  <div class="topbar">
+    <button onclick="sendToMiniProgram('search')">Search</button>
+    <button onclick="sendToMiniProgram('clear')">Clean</button>
   </div>
 
   <!-- ✅ 地图区域 -->
   <div id="container"></div>
 
+  <!-- ✅ 底部 logo 横排 -->
+  <div class="footer">
+    <div class="spacer-left"></div>
+    <img src="https://sms-lab.github.io/map-viewer/assets/SMS-logo-03.png" alt="SMS" />
+    <div class="spacer-middle"></div>
+    <img src="https://sms-lab.github.io/map-viewer/assets/UST-GZ_4C_L4.png" alt="UST-GZ" />
+    <div class="spacer-right"></div>
+  </div>
+
   <script>
+    function sendToMiniProgram(action) {
+      const data = { action };
+      if (window.WeixinJSBridge) {
+        window.WeixinJSBridge.invoke('postMessage', data);
+      } else if (window.parent) {
+        window.parent.postMessage(data, '*');
+      }
+    }
+
     const map = new AMap.Map('container', {
       resizeEnable: true,
       zoom: 16,
@@ -85,7 +123,13 @@
         });
       }
 
-      window.parent.postMessage({ lng, lat }, '*');
+      // 回传坐标
+      const point = { lng, lat };
+      if (window.WeixinJSBridge) {
+        window.WeixinJSBridge.invoke('postMessage', point);
+      } else if (window.parent) {
+        window.parent.postMessage(point, '*');
+      }
     });
   </script>
 </body>

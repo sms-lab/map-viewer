@@ -70,21 +70,21 @@
 </head>
 <body>
 
-  <!-- ✅ 顶部按钮 -->
+  <!-- 顶部按钮 -->
   <div class="topbar">
     <button onclick="sendToMiniProgram('search')">Search</button>
     <button onclick="sendToMiniProgram('clear')">Clean</button>
   </div>
 
-  <!-- ✅ 地图区域 -->
+  <!-- 地图容器 -->
   <div id="container"></div>
 
-  <!-- ✅ 底部 logo 区域（顺序已对调） -->
+  <!-- 底部 Logo（顺序已调换） -->
   <div class="footer">
     <div class="spacer-left"></div>
-    <img src="https://sms-lab.github.io/map-viewer/assets/UST-GZ_4C_L4.png" alt="UST-GZ" class="logo-ust" />
-    <div class="spacer-middle"></div>
     <img src="https://sms-lab.github.io/map-viewer/assets/SMS-logo-03.png" alt="SMS" class="logo-sms" />
+    <div class="spacer-middle"></div>
+    <img src="https://sms-lab.github.io/map-viewer/assets/UST-GZ_4C_L4.png" alt="UST-GZ" class="logo-ust" />
     <div class="spacer-right"></div>
   </div>
 
@@ -111,29 +111,7 @@
 
     let marker = null;
 
-    // ✅ 监听点击地图返回位置
-    map.on('click', function (e) {
-      const lng = e.lnglat.getLng();
-      const lat = e.lnglat.getLat();
-
-      if (marker) {
-        marker.setPosition([lng, lat]);
-      } else {
-        marker = new AMap.Marker({
-          position: [lng, lat],
-          map: map
-        });
-      }
-
-      const point = { lng, lat };
-      if (window.WeixinJSBridge) {
-        window.WeixinJSBridge.invoke('postMessage', point);
-      } else if (window.parent) {
-        window.parent.postMessage(point, '*');
-      }
-    });
-
-    // ✅ 接收来自小程序的定位消息并居中显示
+    // ✅ 接收小程序传来的定位信息
     window.addEventListener("message", function (event) {
       const { data } = event;
       if (data && data.action === 'setLocation' && data.lng && data.lat) {
@@ -146,7 +124,8 @@
         } else {
           marker = new AMap.Marker({
             position: [lng, lat],
-            map: map
+            map: map,
+            title: "当前位置"
           });
         }
       }

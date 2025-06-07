@@ -4,42 +4,50 @@
   <meta charset="utf-8">
   <title>SMS-Lab Map Selector</title>
   <style>
-    body {
+    html, body {
       margin: 0;
-      font-family: Arial, sans-serif;
+      padding: 0;
+      height: 100%;
       background-color: #f8f8f8;
+      font-family: sans-serif;
     }
 
     .header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
       background-color: #007aff;
-      color: white;
-      padding: 12px 16px;
-      font-size: 18px;
-      font-weight: bold;
-      text-align: center;
+      padding: 8px 0;
+    }
+
+    .header img {
+      height: 36px;
+      margin: 0 12px;
     }
 
     #container {
       width: 100%;
-      height: 420px;
+      height: calc(100% - 120px); /* 顶部+底部预留高度 */
     }
 
     .footer {
-      padding: 16px;
+      height: 60px;
+      padding: 10px;
       text-align: center;
+      background-color: #f0f0f0;
     }
 
     .coords {
       font-size: 14px;
       color: #555;
-      margin: 8px 0;
+      margin-bottom: 8px;
     }
 
     .btn {
       background-color: #007aff;
       color: white;
       border: none;
-      padding: 10px 20px;
+      padding: 8px 20px;
       border-radius: 4px;
       font-size: 16px;
       cursor: pointer;
@@ -50,14 +58,21 @@
       cursor: not-allowed;
     }
   </style>
+
   <script src="https://webapi.amap.com/maps?v=1.4.15&key=7c681b657417b538155bec0a6a9f5874&plugin=AMap.Scale,AMap.ToolBar"></script>
 </head>
 <body>
 
-  <div class="header">SMS-Lab · Select Location</div>
+  <!-- ✅ 顶部 logo 横排 -->
+  <div class="header">
+    <img src="assets/SMS-logo-03.png" alt="SMS-Lab Logo" />
+    <img src="assets/UST-GZ_4C_L4.png" alt="UST-GZ Logo" />
+  </div>
 
+  <!-- ✅ 高德地图容器 -->
   <div id="container"></div>
 
+  <!-- ✅ 底部坐标与按钮 -->
   <div class="footer">
     <div class="coords" id="coordDisplay">Please tap on the map</div>
     <button class="btn" id="confirmBtn" disabled>Confirm Location</button>
@@ -87,9 +102,7 @@
       selectedLat = e.lnglat.getLat();
 
       if (!marker) {
-        marker = new AMap.Marker({
-          map: map
-        });
+        marker = new AMap.Marker({ map });
       }
 
       marker.setPosition([selectedLng, selectedLat]);
@@ -100,12 +113,9 @@
 
     confirmBtn.addEventListener('click', function() {
       if (selectedLng && selectedLat) {
-        const data = {
-          lng: selectedLng,
-          lat: selectedLat
-        };
+        const data = { lng: selectedLng, lat: selectedLat };
 
-        // ✅ 给小程序回传数据
+        // ✅ 向小程序回传
         if (window.WeixinJSBridge) {
           window.WeixinJSBridge.invoke('postMessage', data);
         } else if (window.parent) {

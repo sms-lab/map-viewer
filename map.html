@@ -7,22 +7,18 @@
     html, body {
       margin: 0;
       padding: 0;
+      height: 100%;  /* ✅ 允许容器高度继承 */
       background: #f0f0f0;
     }
 
-    /* ✅ 地图容器固定像素高度，避免 WebView 自动填满 */
     #container {
       width: 100%;
-      height: 400px;  /* <== 控制显示区域高度 */
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      margin: 20px auto;
+      height: 100%;  /* ✅ 关键：让地图铺满 iframe 或 web-view */
     }
 
+    /* placeholder 保留可选提示信息（也可去掉） */
     .placeholder {
-      text-align: center;
-      padding: 30px;
-      color: #888;
+      display: none;
     }
   </style>
 
@@ -31,7 +27,6 @@
 <body>
 
   <div id="container"></div>
-  <div class="placeholder">地图高度已限定，仅供嵌入展示</div>
 
   <script>
     const map = new AMap.Map('container', {
@@ -60,6 +55,7 @@
         });
       }
 
+      // ✅ 向小程序发送经纬度消息
       window.parent.postMessage([{ lng, lat }], '*');
     });
   </script>

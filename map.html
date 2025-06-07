@@ -33,18 +33,18 @@
       cursor: pointer;
     }
 
-    /* ✅ 坐标显示区域 */
     #coord {
       text-align: center;
       padding: 10px;
       font-size: 15px;
       color: #333;
       background: #ffffff;
+      border-bottom: 1px solid #ddd;
     }
 
     #container {
       width: 100%;
-      height: calc(100% - 72px - 72px - 44px); /* 顶部按钮 + logo + 坐标显示区域高度 */
+      height: calc(100% - 72px - 72px - 44px); /* topbar + footer + coord */
     }
 
     .footer {
@@ -123,15 +123,17 @@
 
     let marker = null;
 
-    // ✅ 接收小程序传来的定位信息
+    // ✅ 接收小程序传来的经纬度并显示
     window.addEventListener("message", function (event) {
       const { data } = event;
       if (data && data.action === 'setLocation' && data.lng && data.lat) {
         const lng = data.lng;
         const lat = data.lat;
 
-        // 更新地图
+        // 1. 更新地图中心
         map.setCenter([lng, lat]);
+
+        // 2. 设置/更新 marker
         if (marker) {
           marker.setPosition([lng, lat]);
         } else {
@@ -142,9 +144,9 @@
           });
         }
 
-        // ✅ 显示坐标信息
-        const coordText = `已接收到定位信息：<br>经度：${lng.toFixed(6)}，纬度：${lat.toFixed(6)}`;
-        document.getElementById('coord').innerHTML = coordText;
+        // 3. ✅ 输出到顶部坐标区域
+        document.getElementById('coord').innerText =
+          `当前坐标：Lng: ${lng.toFixed(6)}, Lat: ${lat.toFixed(6)}`;
       }
     });
   </script>
